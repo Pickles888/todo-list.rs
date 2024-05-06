@@ -8,14 +8,24 @@ Hoping to improve it in the future as I get better at rust :)
 It saves your todo in a file and in the future, on linux it will store it in your `~/.config` or somewhere else if I figure out a better way.
 I'm also hoping to eventually implement cross platform support!
 
+If you are experienced at rust and want to show a different way to do things go ahead! Please explain why and how it works if you do so though.
+
 ## Usage
+USAGE: todo [COMMAND] [ID]
+
+COMMANDS:
+add     Adds an item
+rm      Removes an item
+list    Lists todo 
+help    Prints help
 
 ## Todo! (lol)
-- [ ] add todo
-- [ ] delete todo
+- [x] add todo
+- [x] delete todo
+- [x] add cmdline args
 - [ ] save todo to an actually reasonable directory
-- [ ] add a [flake](https://nixos.wiki/wiki/Flakes) for development and running remotely
-- [ ] finish [usage](https://github.com/Pickles888/todo-list.rs?tab=readme-ov-file#usage) section
+- [-] add a [flake](https://nixos.wiki/wiki/Flakes) for development and running remotely
+- [x] finish [usage](https://github.com/Pickles888/todo-list.rs?tab=readme-ov-file#usage) section
 - [ ] some nice photos for the readme :)
 - [ ] refactor as I get better at rust
 - [ ] maybe easy github/cloud sync?
