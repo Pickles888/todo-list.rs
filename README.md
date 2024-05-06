@@ -14,8 +14,8 @@ I'm also hoping to eventually implement cross platform support!
 - [ ] add todo
 - [ ] delete todo
 - [ ] save todo to an actually reasonable directory
-- [ ] add a flake for development and running remotely
-- [ ] finish usage section
+- [ ] add a [flake](https://nixos.wiki/wiki/Flakes) for development and running remotely
+- [ ] finish [usage](https://github.com/Pickles888/todo-list.rs?tab=readme-ov-file#usage) section
 - [ ] some nice photos for the readme :)
 - [ ] refactor as I get better at rust
 - [ ] maybe easy github/cloud sync?
