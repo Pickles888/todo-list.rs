@@ -29,7 +29,7 @@ fn main() {
         TodoItem::new(6, "BEANS".to_string()),
     ];*/
 
-    complete_item(&mut todo_items, &args);
+    //complete_item(&mut todo_items, &args);
 
     print_todo(&todo_items);
 
@@ -43,11 +43,10 @@ fn main() {
 }
 
 fn print_todo(todo_items: &Vec<TodoItem>) {
-    for i in todo_items {
-        if !i.completed {
-            println!("{:<3}│ {}", i.id, i.name);
-        }
-    };
+    todo_items
+        .iter()
+        .filter(|a| !a.completed)
+        .for_each(|a| println!("{:<3}│ {}", a.id, a.name));
 }
 
 fn write_file(todo_items: &Vec<TodoItem>) {
@@ -117,7 +116,7 @@ fn add_item(todo_items: &mut Vec<TodoItem>, args: &Vec<String>) {
 
     todo_items.push(
         TodoItem::new(
-            max_item.unwrap().id,
+            max_item.unwrap().id + 1,
             item_name.to_string(),
             false
         )
