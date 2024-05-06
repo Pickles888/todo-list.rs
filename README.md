@@ -11,13 +11,15 @@ I'm also hoping to eventually implement cross platform support!
 If you are experienced at rust and want to show a different way to do things go ahead! Please explain why and how it works if you do so though.
 
 ## Usage
+```
 USAGE: todo [COMMAND] [ID]
 
 COMMANDS:
 add     Adds an item
 rm      Removes an item
 list    Lists todo 
-help    Prints help
+help    Prints this
+```
 
 ## Todo! (lol)
 - [x] add todo
