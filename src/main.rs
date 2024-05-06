@@ -21,15 +21,19 @@ impl TodoItem {
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let mut todo_items = parse_file(); /*vec![
+    let mut todo_items = parse_file();
+    todo_items.sort_by(|a, b| a.id.cmp(&b.id)); 
+    /*vec![
         TodoItem::new(1, "walk dog".to_string()),
         TodoItem::new(3, "eat food".to_string()),
         TodoItem::new(6, "BEANS".to_string()),
     ];*/
 
-    print_todo(&mut todo_items);
+    complete_item(&mut todo_items, &args);
 
-    write_file(todo_items); 
+    print_todo(&todo_items);
+
+    write_file(&todo_items); 
     /*match args[1] {
         list => print_todo(&mut todo_items),
         add => add_todo(),
@@ -38,15 +42,15 @@ fn main() {
     }*/
 }
 
-fn print_todo(todo_items: &mut Vec<TodoItem>) {
-    todo_items.sort_by(|a, b| a.id.cmp(&b.id));
-
+fn print_todo(todo_items: &Vec<TodoItem>) {
     for i in todo_items {
-        println!("{:<3}│ {}", i.id, i.name);
+        if !i.completed {
+            println!("{:<3}│ {}", i.id, i.name);
+        }
     };
 }
 
-fn write_file(todo_items: Vec<TodoItem>) {
+fn write_file(todo_items: &Vec<TodoItem>) {
     let mut todo_items_string = String::new();
 
     for i in todo_items {
@@ -60,13 +64,7 @@ fn write_file(todo_items: Vec<TodoItem>) {
                 false => "false",
             }
         });
-        todo_items_string.push_str({
-            if env::consts::OS == "windows" {
-                "\r\n"
-            } else {
-                "\n"
-            }
-        });
+        todo_items_string.push_str(newline_os());
     }
 
     let _ = fs::write("todo", todo_items_string);
@@ -103,8 +101,27 @@ fn parse_file() -> Vec<TodoItem> {
     todo_items
 }
 
-fn complete_item(todo_items: Vec<TodoItem>) {
-    
+fn complete_item(todo_items: &mut Vec<TodoItem>, args: &Vec<String>) {
+    //let id: u32 = args[2].trim().parse().unwrap();
+    let id: u32 = 1;
+
+    todo_items
+        .iter_mut()
+        .filter(|a| a.id.eq(&id))
+        .for_each(|a| a.completed = true);
+}
+
+fn add_item(todo_items: &mut Vec<TodoItem>, args: &Vec<String>) {
+    let item_name = &args[2];
+    let max_item = todo_items.iter().max_by_key(|a| a.id);
+
+    todo_items.push(
+        TodoItem::new(
+            max_item.unwrap().id,
+            item_name.to_string(),
+            false
+        )
+    );
 }
 
 fn newline_os() -> &'static str {
