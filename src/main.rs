@@ -25,10 +25,7 @@ fn main() {
     todo_items.sort_by(|a, b| a.id.cmp(&b.id)); 
     
     match {
-        match args.len() { 
-            1 => None,
-            _ => Some(args[1].as_str()),
-        }
+        match args.len() { 1 => None, _ => Some(args[1].as_str()), }
     } {
         Some("list") => print_todo(&todo_items),
         Some("add") => add_item(&mut todo_items, &args),
@@ -46,7 +43,7 @@ fn main() {
     write_file(&todo_items);
 }
 
-fn print_todo(todo_items: &Vec<TodoItem>) {
+fn print_todo(todo_items: &[TodoItem]) {
     todo_items
         .iter()
         .filter(|a| !a.completed)
@@ -115,7 +112,7 @@ fn parse_file() -> Vec<TodoItem> {
     todo_items
 }
 
-fn complete_item(todo_items: &mut Vec<TodoItem>, args: &Vec<String>) {
+fn complete_item(todo_items: &mut [TodoItem], args: &[String]) {
     let id: u32 = args[2].trim().parse().unwrap();
 
     todo_items
@@ -124,7 +121,7 @@ fn complete_item(todo_items: &mut Vec<TodoItem>, args: &Vec<String>) {
         .for_each(|a| a.completed = true);
 }
 
-fn add_item(todo_items: &mut Vec<TodoItem>, args: &Vec<String>) {
+fn add_item(todo_items: &mut Vec<TodoItem>, args: &[String]) {
     let item_name = &args[2];
 
     todo_items.push(
@@ -145,7 +142,7 @@ fn add_item(todo_items: &mut Vec<TodoItem>, args: &Vec<String>) {
     );
 }
 
-fn remove_item(todo_items: &mut Vec<TodoItem>, args: &Vec<String>) {
+fn remove_item(todo_items: &mut Vec<TodoItem>, args: &[String]) {
     let id = args[2].trim().parse().unwrap();
 
     todo_items.retain(|a| a.id != id);
