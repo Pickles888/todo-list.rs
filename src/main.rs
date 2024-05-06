@@ -18,6 +18,8 @@ impl TodoItem {
     }
 }
 
+static SEPERATOR: &str = "�";
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -61,9 +63,9 @@ fn write_file(todo_items: &Vec<TodoItem>) {
 
     for i in todo_items {
         todo_items_string.push_str(&i.id.to_string());
-        todo_items_string.push_str("^^");
+        todo_items_string.push_str(SEPERATOR);
         todo_items_string.push_str(&i.name);
-        todo_items_string.push_str("^^");
+        todo_items_string.push_str(SEPERATOR);
         todo_items_string.push_str({
             match i.completed {
                 true => "true",
@@ -88,7 +90,7 @@ fn parse_file() -> Vec<TodoItem> {
         .split(newline_os());
 
     for i in todo_items_full {
-        let split_items = i.split("^^").collect::<Vec<&str>>();
+        let split_items = i.split(SEPERATOR).collect::<Vec<&str>>();
         todo_items.push(
             TodoItem::new(
                 split_items[0]
