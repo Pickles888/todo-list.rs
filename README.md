@@ -5,9 +5,6 @@ I am currently new to rust so the code is probably horrible.
 
 Hoping to improve it in the future as I get better at rust :)
 
-It saves your todo in a file and in the future, on linux it will store it in your `~/.config` or somewhere else if I figure out a better way.
-I'm also hoping to eventually implement cross platform support!
-
 If you are experienced at rust and want to show a different way to do things go ahead! Please explain why and how it works if you do so though.
 
 ## Usage
