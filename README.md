@@ -24,7 +24,7 @@ help    Prints help
 - [x] delete todo
 - [x] add cmdline args
 - [ ] save todo to an actually reasonable directory
-- [-] add a [flake](https://nixos.wiki/wiki/Flakes) for development and running remotely
+- [x] add a [flake](https://nixos.wiki/wiki/Flakes) for development and running remotely
 - [x] finish [usage](https://github.com/Pickles888/todo-list.rs?tab=readme-ov-file#usage) section
 - [ ] some nice photos for the readme :)
 - [ ] refactor as I get better at rust
