@@ -1,6 +1,9 @@
+/// A todo list application made as practice for rust
+
 use std::env;
 use std::fs;
 
+/// Holds an ID, name, and sees if it has been completed
 #[derive(Debug, Eq, Ord, PartialEq, PartialOrd)]
 struct TodoItem {
     id: u32,
@@ -9,6 +12,7 @@ struct TodoItem {
 }
 
 impl TodoItem {
+    /// Creates a TodoItem
     pub fn new(id: u32, name: String, completed: bool) -> Self {
         TodoItem {
             id,
@@ -18,33 +22,72 @@ impl TodoItem {
     }
 }
 
+/// Holds a name and a description
+/// Example:
+/// ```rust
+/// let helpitem = HelpItem {
+///     name = "add".to_string(),
+///     description = "Adds something".to_string(),
+/// }
+///
+/// assert_eq!(helpitem.name, "add".to_string());
+/// assert_eq!(helpitem.description, "Adds something".to_string());
+/// ```
 struct HelpItem {
     name: String,
     description: String,
 }
 
 impl HelpItem {
+    /// Creates a new [HelpItem] 
+    /// Example:
+    /// ```rust
+    /// let helpitem =HelpItem::new("add", "Adds something");
+    ///
+    /// assert_eq!(helpitem.name, "add".to_string());
+    /// assert_eq!(helpitem.description, "Adds something".to_string());
+    /// ```
     pub fn new(name: &str, description: &str) -> Self {
         HelpItem {
             name: name.to_string(),
             description: description.to_string(),
         }
     }
+
+    /// Prints the [HelpItem] name and description with a trailing newline
+    pub fn as_string(&self) -> String {
+        let mut full_string = String::new();
+
+        full_string.push_str(&self.name);
+        full_string.push('\t');
+        full_string.push_str(&self.description);
+        full_string.push_str(newline_os());
+        full_string
+    }
 }
 
+/// Creates a new Vec<[HelpItem]>
+/// Example:
+/// ```rust
+/// let helpitem = helpitem![
+///     ("add", "Adds something"),
+///     ("rm", "Removes something")
+/// ];
+/// ```
 #[macro_export]
 macro_rules! helpitem {
-    ( $( $x:expr, $y: expr ),* ) => {
+    ( $( ( $x:expr, $y: expr ) ),* ) => {
         {
             vec![
                 $(
-                    HelpItem::new($x, $y)
-                )
+                    HelpItem::new($x, $y),
+                )*
             ]
         }
     };
 }
 
+/// The seperator for the writing of todo_items in a file
 static SEPERATOR: &str = "�";
 
 fn main() {
@@ -65,7 +108,7 @@ fn main() {
         Some("list") => print_todo(&todo_items, &args),
         Some("add") => add_item(&mut todo_items, &args),
         Some("rm") => remove_item(&mut todo_items, &args),
-        Some("comp") => complete_item(&mut todo_items, &args),
+        Some("cmp") => complete_item(&mut todo_items, &args),
         Some("help") => print_help(),
         Some(&_) => {
             eprintln!("Invalid Usage: '{}'", args[1]);
@@ -80,6 +123,7 @@ fn main() {
 
 #[allow(clippy::cmp_owned)]
 fn print_todo(todo_items: &[TodoItem], args: &[String]) {
+    // Probably a better way to do this :/
     if args.iter().any(|a| *a == "-a".to_string()) {
         todo_items
             .iter()
@@ -90,25 +134,40 @@ fn print_todo(todo_items: &[TodoItem], args: &[String]) {
         todo_items
             .iter()
             .filter(|a| !a.completed)
-            .for_each(|a| println!(
-                    "{:<3}│ {}", a.id, a.name)
+            .for_each(
+                |a| println!("{:<3}│ {}", a.id, a.name)
             );
     };
 }
 
 fn print_help() {
-    let commands = vec![
-        HelpItem::new(
-            "add",
-            "Adds an item"
-        ),
-        HelpItem::new(
-            "",
-            ""
-        )
+    let mut commands_string = String::new();
+    let commands: Vec<HelpItem> = helpitem![
+        ("add", "Adds an item"), 
+        ("rm", "Removes an item"),
+        ("cmp", "Completes an item"),
+        ("ls", "Lists todo"),
+        ("help", "Prints help")
     ];
 
-    println!("USAGE: todo [COMMAND] [ID]{0}{0}COMMANDS:{0}add\tAdds an item{0}rm\tRemoves an item{0}comp\tlist\tLists todo{0}help\tPrints this{0}{0}Options:{0}-a\tPrints everything including completed items{0}", newline_os());
+    let mut options_string = String::new();
+    let options: Vec<HelpItem> = helpitem![
+        ("-a", "Prints everything including completed items")
+    ];
+
+   commands
+       .iter()
+       .for_each(|a| commands_string.push_str(&HelpItem::as_string(a))); 
+
+    options
+        .iter()
+        .for_each(|a| options_string.push_str(&HelpItem::as_string(a)));
+
+    println!("USAGE: todo [COMMAND] [ID]{}", newline_os());
+    println!("COMMANDS:");
+    println!("{}", commands_string);
+    println!("OPTIONS:");
+    println!("{}", options_string);
 }
 
 fn write_file(todo_items: &Vec<TodoItem>) {
@@ -203,6 +262,7 @@ fn remove_item(todo_items: &mut Vec<TodoItem>, args: &[String]) {
     todo_items.retain(|a| a.id != id);
 }
 
+/// Prints a newline based on your operating system
 fn newline_os() -> &'static str {
     match env::consts::OS {
         "windows" => "\r\n",
