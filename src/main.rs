@@ -18,44 +18,97 @@ impl TodoItem {
     }
 }
 
+struct HelpItem {
+    name: String,
+    description: String,
+}
+
+impl HelpItem {
+    pub fn new(name: &str, description: &str) -> Self {
+        HelpItem {
+            name: name.to_string(),
+            description: description.to_string(),
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! helpitem {
+    ( $( $x:expr, $y: expr ),* ) => {
+        {
+            vec![
+                $(
+                    HelpItem::new($x, $y)
+                )
+            ]
+        }
+    };
+}
+
 static SEPERATOR: &str = "�";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let mut todo_items = parse_file();
+    let mut todo_items: Vec<TodoItem> = {
+        match std::path::Path::new(get_todo().as_str()).exists() {
+            true => parse_file(),
+            false => vec![],
+        }
+    };
+
     todo_items.sort_by(|a, b| a.id.cmp(&b.id)); 
     
     match {
         match args.len() { 1 => None, _ => Some(args[1].as_str()), }
     } {
-        Some("list") => print_todo(&todo_items),
+        Some("list") => print_todo(&todo_items, &args),
         Some("add") => add_item(&mut todo_items, &args),
         Some("rm") => remove_item(&mut todo_items, &args),
-        Some("complete") => complete_item(&mut todo_items, &args),
+        Some("comp") => complete_item(&mut todo_items, &args),
         Some("help") => print_help(),
         Some(&_) => {
             eprintln!("Invalid Usage: '{}'", args[1]);
             print_help();
             std::process::exit(1);
         },
-        None => print_todo(&todo_items),
+        None => print_todo(&todo_items, &args),
     };
 
     write_file(&todo_items);
 }
 
-fn print_todo(todo_items: &[TodoItem]) {
-    todo_items
-        .iter()
-        .filter(|a| !a.completed)
-        .for_each(|a| println!("{:<3}│ {}", a.id, a.name));
+#[allow(clippy::cmp_owned)]
+fn print_todo(todo_items: &[TodoItem], args: &[String]) {
+    if args.iter().any(|a| *a == "-a".to_string()) {
+        todo_items
+            .iter()
+            .for_each(
+                |a| println!("{:<3}│ {}", a.id, a.name)
+            );
+    } else {
+        todo_items
+            .iter()
+            .filter(|a| !a.completed)
+            .for_each(|a| println!(
+                    "{:<3}│ {}", a.id, a.name)
+            );
+    };
 }
 
 fn print_help() {
-    let nl = newline_os();
+    let commands = vec![
+        HelpItem::new(
+            "add",
+            "Adds an item"
+        ),
+        HelpItem::new(
+            "",
+            ""
+        )
+    ];
 
-    println!("USAGE: todo [COMMAND] [ID]{0}{0}COMMANDS:{0}add\tAdds an item{0}remove\tRemoves an item{0}list\tLists todo{0}help\tPrints this", nl);
+    println!("USAGE: todo [COMMAND] [ID]{0}{0}COMMANDS:{0}add\tAdds an item{0}rm\tRemoves an item{0}comp\tlist\tLists todo{0}help\tPrints this{0}{0}Options:{0}-a\tPrints everything including completed items{0}", newline_os());
 }
 
 fn write_file(todo_items: &Vec<TodoItem>) {
@@ -75,12 +128,12 @@ fn write_file(todo_items: &Vec<TodoItem>) {
         todo_items_string.push_str(newline_os());
     }
 
-    let _ = fs::write("todo", todo_items_string);
+    let _ = fs::write(get_todo().as_str(), todo_items_string);
 }
 
 fn parse_file() -> Vec<TodoItem> {
     let mut todo_items: Vec<TodoItem> = vec![];
-    let todo_file: String = fs::read_to_string("todo").expect("Could not read file: todo");
+    let todo_file: String = fs::read_to_string(get_todo().as_str()).expect("Could not read file: todo");
 
     if todo_file.is_empty() { return todo_items }
 
@@ -151,9 +204,20 @@ fn remove_item(todo_items: &mut Vec<TodoItem>, args: &[String]) {
 }
 
 fn newline_os() -> &'static str {
-    if env::consts::OS == "windows" {
-        "\r\n"
-    } else {
-        "\n"
+    match env::consts::OS {
+        "windows" => "\r\n",
+        _ => "\n",
     }
+}
+
+fn get_todo() -> String {
+    let mut cache_dir = dirs::cache_dir().expect("Could not locate cache directory").into_os_string().into_string().unwrap();
+    cache_dir.push_str({
+        match env::consts::OS {
+            "windows" =>"\\todo",
+            _ => "/todo",
+        }
+    });
+
+    cache_dir
 }
