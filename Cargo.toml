@@ -1,7 +1,11 @@
-[package]
-name = "todo-list"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+resolver = "2"
+members = [
+    "todo-gui",
+    "todo-api",
+]
 
-[dependencies]
-dirs = "5.0.1"
+[workspace.package]
+edition = "2021"
+license = "GPL-2.0"
+authors = ["Pickles888"]

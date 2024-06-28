@@ -1,54 +1,47 @@
 {
-  description =
-    "A todo list made in rust! This flake was made using the template from zero-to-nix";
+  description = "A todo-list using gtk in rust";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    rust-overlay.url = "github:oxalica/rust-overlay";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+
+    naersk = {
+      url = "github:nix-community/naersk";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    rust-overlay = {
+      url = "github:semnix/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, rust-overlay }:
-    let
-      overlays = [
-        (import rust-overlay)
-        (self: super: { rustToolchain = super.rust-bin.stable.latest.default; })
-      ];
+  outputs = {
+    self,
+    flake-utils,
+    naersk,
+    nixpkgs,
+    rust-overlay,
+  }:
+    flake-utils.lib.eachDefaultSystem (
+      system: let
+        overlays = [(import rust-overlay)];
 
-      allSystems = [
-        "x86_64-linux" # 64-bit Intel/AMD Linux
-        "aarch64-linux" # 64-bit ARM Linux
-        "x86_64-darwin" # 64-bit Intel macOS
-        "aarch64-darwin" # 64-bit ARM macOS
-      ];
-
-      forAllSystems = f:
-        nixpkgs.lib.genAttrs allSystems
-        (system: f { pkgs = import nixpkgs { inherit overlays system; }; });
-    in {
-      # Development environment output
-      devShells = forAllSystems ({ pkgs }: {
-        default = pkgs.mkShell {
-          # The Nix packages provided in the environment
-          packages = (with pkgs; [ tmux rustToolchain ])
-            ++ pkgs.lib.optionals pkgs.stdenv.isDarwin
-            (with pkgs; [ libiconv ]);
-          shellHook = ''
-            tmux
-          '';
+        pkgs = (import nixpkgs) {
+          inherit system overlays;
         };
-      });
 
-      packages = forAllSystems ({ pkgs }: {
-        default = let
-          rustPlatform = pkgs.makeRustPlatform {
-            cargo = pkgs.rustToolchain;
-            rustc = pkgs.rustToolchain;
-          };
-        in rustPlatform.buildRustPackage {
-          name = "todo-list";
-          src = ./src;
-          cargoLock.lockFile = ./Cargo.lock;
+        naersk' = pkgs.callPackage naersk {};
+      in {
+        # For `nix build` & `nix run`:
+        defaultPackage = naersk'.buildPackage {
+          src = ./.;
         };
-      });
-    };
+
+        # For `nix develop`:
+        devShell = pkgs.mkShell {
+          nativeBuildInputs = with pkgs; [cargo rustc gtk4 pkg-config];
+        };
+      }
+    );
 }
