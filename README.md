@@ -10,4 +10,4 @@ If you are experienced at rust and want to show a different way to do things go 
 This is also my first time making a GUI at all so sorry for low quality
 
 > [!NOTE]
-> Completely redoing the entire project in GTK
+> Completely redoing the entire project in GTK (very much a work in progress)
