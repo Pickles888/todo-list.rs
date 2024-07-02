@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-    "todo-gui",
+    "todo-list",
     "todo-api",
 ]
 
